@@ -1,5 +1,5 @@
 defmodule CatFacts.Image do
-  def randon() do
+  def random() do
     client()
     |> Tesla.get("/images/search")
     |> parse()
