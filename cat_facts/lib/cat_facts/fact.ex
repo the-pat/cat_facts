@@ -1,30 +1,24 @@
 defmodule CatFacts.Fact do
-  use GenServer
-
-  ## Client
-
-  def start_link(_) do
-    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
-  end
-
   def random() do
-    GenServer.call(__MODULE__, {:random})
+    client()
+    |> Tesla.get("/facts/random")
+    |> parse()
   end
 
-  ## Server
-
-  def init(:ok) do
+  defp client() do
     middleware = [
       {Tesla.Middleware.BaseUrl, "https://cat-fact.herokuapp.com"},
       Tesla.Middleware.JSON
     ]
 
-    {:ok, Tesla.client(middleware)}
+    Tesla.client(middleware)
   end
 
-  def handle_call({:random}, _from, client) do
-    {:ok, %{body: %{"text" => text}}} = Tesla.get(client, "/facts/random")
+  defp parse({:ok, %{body: %{"text" => text}}}) do
+    {:ok, text}
+  end
 
-    {:reply, text, client}
+  defp parse({_, response}) do
+    {:error, {"Unexpected response", response}}
   end
 end
