@@ -1,0 +1,2 @@
+defmodule CatFacts do
+end
