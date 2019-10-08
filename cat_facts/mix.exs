@@ -18,6 +18,8 @@ defmodule CatFacts.MixProject do
   end
 
   defp deps do
-    []
+    [
+      {:tesla, "~> 1.3"}
+    ]
   end
 end
