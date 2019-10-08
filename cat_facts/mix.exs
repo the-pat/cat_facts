@@ -13,13 +13,16 @@ defmodule CatFacts.MixProject do
 
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger],
+      mod: {CatFacts, []}
     ]
   end
 
   defp deps do
     [
-      {:tesla, "~> 1.3"}
+      {:tesla, "~> 1.3"},
+      {:hackney, "~> 1.14.0"},
+      {:jason, ">= 1.0.0"}
     ]
   end
 end
