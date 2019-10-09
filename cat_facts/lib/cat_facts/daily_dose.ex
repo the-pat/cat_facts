@@ -19,9 +19,11 @@ defmodule CatFacts.DailyDose do
   def handle_info(:daily_dose, state) do
     schedule_dose()
 
-    # TODO: run async, handle errors
-    {:ok, fact} = Fact.random()
-    {:ok, image} = Image.random()
+    fact_task = Task.async(&Fact.random/0)
+    image_task = Task.async(&Image.random/0)
+
+    {:ok, fact} = Task.await(fact_task)
+    {:ok, image} = Task.await(image_task)
 
     IO.inspect({fact, image})
     {:noreply, state}
