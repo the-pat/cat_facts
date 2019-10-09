@@ -13,6 +13,7 @@ defmodule CatFacts.DailyDose do
 
   def init(:ok) do
     schedule_dose()
+
     {:ok, []}
   end
 
@@ -30,8 +31,11 @@ defmodule CatFacts.DailyDose do
   end
 
   ## Helpers
-
   defp schedule_dose() do
-    Process.send_after(self(), :daily_dose, :timer.hours(24))
+    {:ok, start_time} = Time.new(15, 0, 0)
+    ms_past_start = abs(Time.diff(start_time, Time.utc_now(), :millisecond))
+    ms_until_start = :timer.hours(24) - ms_past_start
+
+    Process.send_after(self(), :daily_dose, ms_until_start)
   end
 end
