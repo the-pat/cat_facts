@@ -1,8 +1,8 @@
 defmodule CatFacts.Image do
-  def random() do
+  def random(attempts \\ 0) do
     client()
     |> Tesla.get("/images/search")
-    |> parse()
+    |> parse(attempts)
   end
 
   defp client() do
@@ -18,13 +18,17 @@ defmodule CatFacts.Image do
     Tesla.client(middleware)
   end
 
-  defp parse({:ok, %{body: body}}) do
+  defp parse({:ok, %{body: body}}, _) do
     body
     |> List.first()
     |> Map.fetch("url")
   end
 
-  defp parse({_, response}) do
+  defp parse(_, attempts) when attempts < 5 do
+    random(attempts + 1)
+  end
+
+  defp parse({_, response}, _) do
     {:error, {"Unexpected response", response}}
   end
 end
