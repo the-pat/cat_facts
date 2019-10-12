@@ -1,12 +1,12 @@
 defmodule CatFacts.DailyDose do
   use GenServer
 
-  alias CatFacts.{Fact, Image}
+  alias CatFacts.{Fact, Image, Message}
 
   ## Client
 
   def start_link(_) do
-    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
+    GenServer.start_link(__MODULE__, {:ok, []}, name: __MODULE__)
   end
 
   ## Server
@@ -17,13 +17,12 @@ defmodule CatFacts.DailyDose do
     {:ok, []}
   end
 
-  def handle_info(:daily_dose, state) do
+  def handle_info(:daily_dose, numbers) do
     schedule_dose()
 
-    dose = get_daily_dose()
+    dose = get_daily_dose(numbers)
 
-    IO.inspect(dose)
-    {:noreply, state}
+    {:noreply, numbers}
   end
 
   ## Helpers
@@ -36,15 +35,18 @@ defmodule CatFacts.DailyDose do
     Process.send_after(self(), :daily_dose, ms_until_start)
   end
 
-  defp get_daily_dose(attempts \\ 0) do
+  defp get_daily_dose(numbers, attempts \\ 0) do
     with fact_task <- Task.async(&Fact.random/0),
          image_task <- Task.async(&Image.random/0),
          {:ok, fact} <- Task.await(fact_task),
-         {:ok, image} <- Task.await(image_task) do
-      {:ok, fact, image}
+         {:ok, image} <- Task.await(image_task)
+         {:ok, sent_numbers} <- Message.send_messages(numbers, from_number(), fact, image) do
+      {:ok, fact, image, sent_numbers}
     else
       _ when attempts >= 5 -> {:error, "Unable to send the daily dose of cat facts."}
-      _ -> get_daily_dose(attempts + 1)
+      _ -> get_daily_dose(numbers, attempts + 1)
     end
   end
+
+  defp from_number(), do: Application.get_env(:cat_facts, :from_number)
 end
