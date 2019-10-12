@@ -9,12 +9,28 @@ defmodule CatFacts.DailyDose do
     GenServer.start_link(__MODULE__, {:ok, []}, name: __MODULE__)
   end
 
+  def add_numbers(numbers) when is_list(numbers) do
+    GenServer.cast(__MODULE__, {:add, numbers})
+  end
+
+  def remove_numbers(numbers) when is_list(numbers) do
+    GenServer.cast(__MODULE__, {:remove, numbers})
+  end
+
   ## Server
 
   def init(:ok) do
     schedule_dose()
 
     {:ok, []}
+  end
+
+  def handle_cast({:add, numbers_to_add}, numbers) do
+    {:noreply, numbers_to_add ++ numbers}
+  end
+
+  def handle_cast({:remove, numbers_to_remove}, numbers) do
+    {:noreply, numbers -- numbers_to_remove}
   end
 
   def handle_info(:daily_dose, numbers) do
