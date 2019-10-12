@@ -6,13 +6,10 @@ defmodule CatFacts.Image do
   end
 
   defp client() do
-    # TODO: create a config file
-    key = ""
-
     middleware = [
       {Tesla.Middleware.BaseUrl, "https://api.thecatapi.com/v1"},
       Tesla.Middleware.JSON,
-      {Tesla.Middleware.Headers, [{"x-api-key", key}]}
+      {Tesla.Middleware.Headers, [{"x-api-key", cat_api_key()}]}
     ]
 
     Tesla.client(middleware)
@@ -31,4 +28,6 @@ defmodule CatFacts.Image do
   defp parse({_, response}, _) do
     {:error, {"Unexpected response", response}}
   end
+
+  defp cat_api_key(), do: Application.get_env(:cat_facts, :cat_api_key)
 end

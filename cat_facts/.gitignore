@@ -23,3 +23,5 @@ erl_crash.dump
 cat_facts-*.tar
 
 /.elixir_ls/
+
+/config/*.secret.exs
